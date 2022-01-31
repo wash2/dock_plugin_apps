@@ -1,0 +1,27 @@
+listview.apps {
+    border-radius: 12px;
+    background: transparent;
+    transition: 100ms;
+}
+
+/* listview.apps row:hover { */
+/*     background: transparent; */
+/*     border-radius: 12px; */
+/*     padding: 0px; */
+/* } */
+
+listview.apps row {
+    transition: 100ms;
+    background: transparent;
+    border-radius: 12px;
+    padding: 0px;
+    outline-color: transparent;
+}
+list.popover_menu {
+    background: transparent;
+}
+
+box.apps {
+    border-radius: 12px;
+    background: transparent;
+}
