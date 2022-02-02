@@ -5,8 +5,8 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-cosmic-plugin = { path = "../cosmic-plugin" }
-# cosmic-plugin = { git = "https://github.com/wash2/dock-plugin" }
+# cosmic-plugin = { path = "../cosmic-plugin" }
+cosmic-plugin = { git = "https://github.com/wash2/dock-plugin" }
 cascade = "1.0.0"
 gtk4 = { version = "0.4.5", features = ["v4_4"] }
 gtk4-sys = "0.4.5"

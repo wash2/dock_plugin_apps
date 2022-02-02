@@ -185,17 +185,9 @@ impl DockPopover {
             launch_new_item.connect_clicked(glib::clone!(@weak dock_object, => move |_| {
                 let app_info = dock_object.property::<Option<DesktopAppInfo>>("appinfo").expect("Failed to convert value to DesktopAppInfo");
 
-                let window = self_.root().unwrap().downcast::<Window>().unwrap();
-                let context = window.display().app_launch_context();
+                let context = gdk4::Display::default().unwrap().app_launch_context();
                 if let Err(err) = app_info.launch(&[], Some(&context)) {
-                    gtk4::MessageDialog::builder()
-                        .text(&format!("Failed to start {}", app_info.name()))
-                        .secondary_text(&err.to_string())
-                        .message_type(gtk4::MessageType::Error)
-                        .modal(true)
-                        .transient_for(&window)
-                        .build()
-                        .show();
+                    eprintln!("{}", err);
                 }
                 self_.emit_hide();
             }));

@@ -220,7 +220,6 @@ impl DockList {
         let popover_menu_index = &imp.popover_menu_index;
         let tx = imp.tx.get().unwrap().clone();
         controller.connect_released(glib::clone!(@weak model, @weak list_view, @weak popover_menu_index => move |self_, _, x, y| {
-            let window = list_view.root().unwrap().downcast::<Window>().unwrap();
             let max_x = list_view.allocated_width();
             let max_y = list_view.allocated_height();
             // dbg!(max_y);
@@ -272,16 +271,9 @@ impl DockList {
                         (click, Some(click_modifier), Some(first_focused_item), _) if click == 1 && !click_modifier.contains(ModifierType::CONTROL_MASK) => focus_window(first_focused_item),
                         (click, None, Some(first_focused_item), _) if click == 1 => focus_window(first_focused_item),
                         (click, _, _, Some(app_info)) | (click, _, None, Some(app_info)) if click != 3  => {
-                            let context = window.display().app_launch_context();
+                            let context = gdk4::Display::default().unwrap().app_launch_context();
                             if let Err(err) = app_info.launch(&[], Some(&context)) {
-                                gtk4::MessageDialog::builder()
-                                    .text(&format!("Failed to start {}", app_info.name()))
-                                    .secondary_text(&err.to_string())
-                                    .message_type(gtk4::MessageType::Error)
-                                    .modal(true)
-                                    .transient_for(&window)
-                                    .build()
-                                    .show();
+                                dbg!(err);
                             }
 
                         }
