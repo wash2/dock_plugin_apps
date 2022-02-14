@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install deps
-      run: apt update && apt install libgtk-4-dev build-essential -y
+      run: apt-get update && apt-get install libgtk-4-dev build-essential -y
     - name: Syntac check
       run: cargo check
     - name: Format check
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install deps
-      run: apt update && apt install libgtk-4-dev build-essential -y
+      run: apt-get update && apt-get install libgtk-4-dev build-essential -y
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install deps
-      run: apt update && apt install libgtk-4-dev build-essential -y
+      run: apt-get update && apt-get install libgtk-4-dev build-essential -y
     - name: Packaging
       run: cargo package
     - name: Publishing dry run
