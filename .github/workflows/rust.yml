@@ -1,22 +1,45 @@
 name: Rust
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: push
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
+  check_syntax_format_lint:
     runs-on: ubuntu-latest
-
     steps:
+    - name: Install deps
+      run: apt update && apt install libgtk-4-dev build-essential -y
+    - name: Syntac check
+      run: cargo check
+    - name: Format check
+      run: |
+        rustup component add rustfmt
+        cargo fmt -- --verbose --check --color auto
+    - name: Lint check
+      run: |
+        rustup component add clippy
+        set env RUSTFLAGS="-Dwarnings"
+        cargo clippy --workspace -- -D warnings
+  build_test_doc:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install deps
+      run: apt update && apt install libgtk-4-dev build-essential -y
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+    - name: Build Docs
+      run: cargo doc --verbose
+  packaging_check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install deps
+      run: apt update && apt install libgtk-4-dev build-essential -y
+    - name: Packaging
+      run: cargo package
+    - name: Publishing dry run
+      run: cargo publish --dry-run
