@@ -1,10 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-only
-use std::path::Path;
+// SPDX-License-Identifier: MPL-2.0-only
 
+use std::path::Path;
 use crate::utils::BoxedWindowList;
-use cosmic_plugin::Position;
-use gdk4::glib::Object;
-use gdk4::subclass::prelude::ObjectSubclassExt;
+use gtk4::gdk::glib::Object;
+use gtk4::gdk::subclass::prelude::ObjectSubclassExt;
 use gio::{DesktopAppInfo, Icon};
 use gtk4::prelude::*;
 use gtk4::{glib, Image};

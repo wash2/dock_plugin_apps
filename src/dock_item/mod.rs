@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: MPL-2.0-only
+
 use crate::dock_object::DockObject;
 use crate::dock_popover::DockPopover;
 use crate::utils::BoxedWindowList;
@@ -53,7 +54,7 @@ impl DockItem {
             ..set_valign(Align::Center);
             ..add_css_class("transparent");
         };
-        // TODO dots inverse color of parent with gsk blend modes
+        // TODO dots inverse color of parent with gsk blend modes?
         item_box.append(&image);
         item_box.append(&dots);
         let popover = cascade! {

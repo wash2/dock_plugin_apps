@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: MPL-2.0-only
 use cascade::cascade;
 use cosmic_plugin::Position;
 use gtk4::prelude::*;
@@ -22,6 +22,7 @@ glib::wrapper! {
 
 impl AppsContainer {
     pub fn new(tx: Sender<Event>) -> Self {
+        println!("setting up app container");
         let self_: Self = glib::Object::new(&[]).expect("Failed to create AppsContainer");
         let imp = imp::AppsContainer::from_instance(&self_);
 
@@ -92,6 +93,6 @@ impl AppsContainer {
         let drop_controller = imp.saved_list.get().unwrap().drop_controller();
 
         // hack to prevent hiding window when dnd from other apps
-        drop_controller.connect_enter(move |_self, _x, _y| gdk4::DragAction::COPY);
+        drop_controller.connect_enter(move |_self, _x, _y| gtk4::gdk::DragAction::COPY);
     }
 }

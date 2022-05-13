@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: MPL-2.0-only
+
 use cosmic_plugin::Position;
-// SPDX-License-Identifier: GPL-3.0-only
 use glib::SignalHandlerId;
 use gtk4::subclass::prelude::*;
 use gtk4::{gio, glib};

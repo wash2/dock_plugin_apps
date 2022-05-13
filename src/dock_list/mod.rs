@@ -1,13 +1,14 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: MPL-2.0-only
+
 use crate::dock_item::DockItem;
 use crate::dock_object::DockObject;
 use crate::utils::data_path;
 use crate::utils::{BoxedWindowList, Event, Item};
 use cascade::cascade;
 use cosmic_plugin::Position;
-use gdk4::ContentProvider;
-use gdk4::Display;
-use gdk4::ModifierType;
+use gtk4::gdk::ContentProvider;
+use gtk4::gdk::Display;
+use gtk4::gdk::ModifierType;
 use gio::DesktopAppInfo;
 use gio::Icon;
 use glib::Object;
@@ -22,6 +23,7 @@ use gtk4::ListView;
 use gtk4::Orientation;
 use gtk4::SignalListItemFactory;
 use gtk4::Window;
+use gtk4::gdk;
 use gtk4::{DragSource, GestureClick};
 use std::borrow::Borrow;
 use std::fs::File;
@@ -271,7 +273,7 @@ impl DockList {
                         (click, Some(click_modifier), Some(first_focused_item), _) if click == 1 && !click_modifier.contains(ModifierType::CONTROL_MASK) => focus_window(first_focused_item),
                         (click, None, Some(first_focused_item), _) if click == 1 => focus_window(first_focused_item),
                         (click, _, _, Some(app_info)) | (click, _, None, Some(app_info)) if click != 3  => {
-                            let context = gdk4::Display::default().unwrap().app_launch_context();
+                            let context = gdk::Display::default().unwrap().app_launch_context();
                             if let Err(err) = app_info.launch(&[], Some(&context)) {
                                 dbg!(err);
                             }
@@ -307,10 +309,10 @@ impl DockList {
         }
 
         let drop_target_widget = &imp.list_view.get().unwrap();
-        let mut drop_actions = gdk4::DragAction::COPY;
-        drop_actions.insert(gdk4::DragAction::MOVE);
-        let drop_format = gdk4::ContentFormats::for_type(Type::STRING);
-        let drop_format = drop_format.union(&gdk4::ContentFormats::for_type(Type::U32));
+        let mut drop_actions = gdk::DragAction::COPY;
+        drop_actions.insert(gdk::DragAction::MOVE);
+        let drop_format = gdk::ContentFormats::for_type(Type::STRING);
+        let drop_format = drop_format.union(&gdk::ContentFormats::for_type(Type::U32));
         let drop_controller = DropTarget::builder()
             .preload(true)
             .actions(drop_actions)
@@ -399,8 +401,8 @@ impl DockList {
         let type_ = imp.type_.get().unwrap();
 
         let actions = match type_ {
-            &DockListType::Saved => gdk4::DragAction::MOVE,
-            &DockListType::Active => gdk4::DragAction::COPY,
+            &DockListType::Saved => gdk::DragAction::MOVE,
+            &DockListType::Active => gdk::DragAction::COPY,
         };
         let drag_source = DragSource::builder()
             .name("dock drag source")
@@ -441,7 +443,7 @@ impl DockList {
                     let tx = tx.clone();
                     if let Some(old_handle) = drag_cancel.replace(Some(self_.connect_drag_cancel(
                         glib::clone!(@weak model => @default-return false, move |_self, _drag, cancel_reason| {
-                            if cancel_reason != gdk4::DragCancelReason::UserCancelled {
+                            if cancel_reason != gdk::DragCancelReason::UserCancelled {
                                 model.remove(index);
                                 let tx = tx.clone();
                                 glib::MainContext::default().spawn_local(async move {

@@ -1,9 +1,10 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: MPL-2.0-only
+
 use cascade::cascade;
-use gdk4::pango::EllipsizeMode;
+use gtk4::gdk::pango::EllipsizeMode;
 use gio::DesktopAppInfo;
 use gtk4::subclass::prelude::*;
-use gtk4::{gio, glib};
+use gtk4::{gio, glib, gdk};
 use gtk4::{prelude::*, Label};
 use gtk4::{Box, Button, Image, ListBox, Orientation, Window};
 use tokio::sync::mpsc::Sender;
@@ -185,7 +186,7 @@ impl DockPopover {
             launch_new_item.connect_clicked(glib::clone!(@weak dock_object, => move |_| {
                 let app_info = dock_object.property::<Option<DesktopAppInfo>>("appinfo").expect("Failed to convert value to DesktopAppInfo");
 
-                let context = gdk4::Display::default().unwrap().app_launch_context();
+                let context = gdk::Display::default().unwrap().app_launch_context();
                 if let Err(err) = app_info.launch(&[], Some(&context)) {
                     eprintln!("{}", err);
                 }

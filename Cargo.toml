@@ -1,5 +1,5 @@
 [package]
-name = "dock_plugin_apps"
+name = "cosmic-dock-app-list"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,11 +9,7 @@ edition = "2021"
 cosmic-plugin = { git = "https://github.com/wash2/dock-plugin" }
 cascade = "1.0.0"
 gtk4 = { version = "0.4.5", features = ["v4_4"] }
-gtk4-sys = "0.4.5"
-glib-sys = "0.15.1"
-gdk4 = "0.4.4"
 gio = "0.15.3"
-gobject-sys = "0.15.1"
 libcosmic = { git = "https://github.com/pop-os/libcosmic" }
 relm4-macros = { git = "https://github.com/AaronErhardt/Relm4" }
 serde = "1.0.136"
@@ -26,13 +22,12 @@ xdg = "2.4.0"
 zbus = "2.0.1"
 zvariant = "3.1.2"
 zvariant_derive = "3.1.2"
-libloading = "0.7.3"
 gsk4 = "0.4.6"
+pretty_env_logger = "0.4"
+anyhow = "1.0.50"
+i18n-embed = { version = "0.13.4", features = ["fluent-system", "desktop-requester"] }
+i18n-embed-fl = "0.6.4"
+rust-embed = "6.3.0"
 
 [build-dependencies]
-cbindgen = "0.20.0"
-
-[lib]
-name = "apps_plugin"
-crate-type = ["cdylib"]
-
+gio = "0.15.10"

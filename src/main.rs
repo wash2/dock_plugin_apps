@@ -1,50 +1,39 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: MPL-2.0-only
 
-use apps_container::AppsContainer;
-use cosmic_plugin::*;
+use apps_window::CosmicDockAppListWindow;
 use dock_list::DockListType;
 use dock_object::DockObject;
-use gdk4::glib::SourceId;
-use gio::DesktopAppInfo;
-use gtk4::{glib, prelude::*};
+use gtk4::gdk::Display;
+use gio::{DesktopAppInfo, ApplicationFlags};
+use gtk4::{glib, prelude::*, CssProvider, StyleContext};
 use once_cell::sync::OnceCell;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use std::{collections::BTreeMap, thread::JoinHandle};
+use std::{collections::BTreeMap};
 use tokio::sync::mpsc;
 use utils::{block_on, BoxedWindowList, Event, Item, DEST, PATH};
 use zbus::Connection;
 
+mod apps_window;
 mod apps_container;
 mod dock_item;
 mod dock_list;
 mod dock_object;
 mod dock_popover;
 mod utils;
+mod localize;
 
-const ID: &str = "com.system76.apps";
+const ID: &str = "com.system76.CosmicDockAppList";
+static TX: OnceCell<mpsc::Sender<Event>> = OnceCell::new();
 
-#[derive(Debug, Default)]
-pub struct Apps {
-    tx: OnceCell<mpsc::Sender<Event>>,
-    event_handle: OnceCell<SourceId>,
-    cached_window_list: Arc<Mutex<Vec<Item>>>,
-    zbus_handle: OnceCell<JoinHandle<()>>,
-    close_thread: Arc<Mutex<bool>>,
-    apps_container: OnceCell<AppsContainer>,
-}
+fn spawn_zbus(sender: mpsc::Sender<Event>, cached_results: Arc<Mutex<Vec<Item>>>) -> Connection {
+    let connection = block_on(Connection::session()).unwrap();
 
-impl Apps {
-    fn spawn_zbus(&self) -> Connection {
-        let connection = block_on(Connection::session()).unwrap();
-
-        let sender = self.tx.get().unwrap().clone();
         let conn = connection.clone();
-        let close_thread = Arc::clone(&self.close_thread);
-        let cached_window_list = Arc::clone(&self.cached_window_list);
+        let cached_window_list = Arc::clone(&cached_results);
         let zbus_handle = std::thread::spawn(move || {
             block_on(async move {
-                while !*close_thread.lock().unwrap() {
+                loop {
                     let m = conn
                         .call_method(Some(DEST), PATH, Some(DEST), "WindowList", &())
                         .await;
@@ -76,40 +65,55 @@ impl Apps {
             })
         });
 
-        self.zbus_handle.set(zbus_handle).unwrap();
         connection
+}
+
+pub fn localize() {
+    let localizer = crate::localize::localizer();
+    let requested_languages = i18n_embed::DesktopLanguageRequester::requested_languages();
+
+    if let Err(error) = localizer.select(&requested_languages) {
+        eprintln!(
+            "Error while loading language for App List {}",
+            error
+        );
     }
 }
 
-impl Plugin for Apps {
-    fn css_provider(&self) -> gtk4::CssProvider {
-        // Load the css file and add it to the provider
-        let provider = gtk4::CssProvider::new();
-        provider.load_from_data(include_bytes!("style.css"));
-        provider
-    }
+fn load_css() {
+    let provider = CssProvider::new();
+    provider.load_from_data(include_bytes!("style.css"));
 
-    fn on_plugin_unload(&mut self) {
-        {
-            let mut ct = self.close_thread.lock().unwrap();
-            *ct = true;
-        }
-        self.zbus_handle.take().unwrap().join().unwrap();
-        self.event_handle.take().unwrap().remove();
-        futures::executor::block_on(self.tx.take().unwrap().closed());
-        drop(self.apps_container.take().unwrap());
-    }
+    StyleContext::add_provider_for_display(
+        &Display::default().unwrap(),
+        &provider,
+        gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+}
 
-    fn on_plugin_load(&mut self) {
+fn main() {
+    // Initialize logger
+    pretty_env_logger::init();
+    glib::set_application_name("Cosmic Dock App List");
+
+    localize();
+
+    gio::resources_register_include!("compiled.gresource").unwrap();
+    let app = gtk4::Application::new(Some(ID), ApplicationFlags::default());
+
+    app.connect_activate(|app| {
+        load_css();
         let (tx, mut rx) = mpsc::channel(100);
-        self.tx.set(tx.clone()).unwrap();
-        let zbus_conn = self.spawn_zbus();
 
+        let window = CosmicDockAppListWindow::new(&app, tx.clone());
+
+        
         let apps_container = apps_container::AppsContainer::new(tx.clone());
-        self.apps_container.set(apps_container.clone()).unwrap();
+        let cached_results = Arc::new(Mutex::new(Vec::new()));
+        let zbus_conn = spawn_zbus(tx.clone(), Arc::clone(&cached_results));
+        TX.set(tx.clone()).unwrap();
 
-        let cached_results = Arc::clone(&self.cached_window_list);
-        let event_handle = glib::MainContext::default().spawn_local(async move {
+        let _ = glib::MainContext::default().spawn_local(async move {
             while let Some(event) = rx.recv().await {
                 match event {
                     Event::Activate(e) => {
@@ -314,22 +318,7 @@ impl Plugin for Apps {
                 }
             }
         });
-        self.event_handle.set(event_handle).unwrap();
-    }
-
-    fn applet(&self) -> gtk4::Box {
-        self.apps_container
-            .get()
-            .unwrap()
-            .clone()
-            .upcast::<gtk4::Box>()
-    }
-
-    fn set_size(&self, _size: Size) {}
-
-    fn set_position(&self, position: Position) {
-        self.apps_container.get().unwrap().set_position(position);
-    }
+        window.show();
+    });
+    app.run();
 }
-
-declare_plugin!(Apps);
