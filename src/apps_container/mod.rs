@@ -1,16 +1,18 @@
+use std::env;
+
 // SPDX-License-Identifier: MPL-2.0-only
+use crate::dock_list::DockList;
+use crate::dock_list::DockListType;
+use crate::utils::Event;
 use cascade::cascade;
-use cosmic_plugin::Position;
+use cosmic_dock_epoch_config::config::Anchor;
+use cosmic_dock_epoch_config::config::CosmicDockConfig;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 use gtk4::Orientation;
 use gtk4::Separator;
 use gtk4::{gio, glib};
 use tokio::sync::mpsc::Sender;
-
-use crate::dock_list::DockList;
-use crate::dock_list::DockListType;
-use crate::utils::Event;
 
 mod imp;
 
@@ -66,11 +68,13 @@ impl AppsContainer {
         imp.active_list.set(active_app_list_view).unwrap();
         // Setup
         self_.setup_callbacks();
+        self_.load_dock_config();
 
         Self::setup_callbacks(&self_);
 
         self_
     }
+    
     pub fn model(&self, type_: DockListType) -> &gio::ListStore {
         // Get state
         let imp = imp::AppsContainer::from_instance(self);
@@ -80,11 +84,19 @@ impl AppsContainer {
         }
     }
 
-    pub fn set_position(&self, position: Position) {
+    pub fn set_position(&self, position: Anchor) {
         self.set_orientation(position.into());
         let imp = imp::AppsContainer::from_instance(&self);
         imp.saved_list.get().unwrap().set_position(position);
         imp.active_list.get().unwrap().set_position(position);
+    }
+
+    pub fn load_dock_config(&self) {
+        if let Ok(Ok(config)) =
+            env::var("COSMIC_DOCK_CONFIG").map(|c_name| CosmicDockConfig::load(&c_name))
+        {
+            self.set_position(config.anchor);
+        }
     }
 
     fn setup_callbacks(&self) {

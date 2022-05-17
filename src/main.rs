@@ -3,25 +3,25 @@
 use apps_window::CosmicDockAppListWindow;
 use dock_list::DockListType;
 use dock_object::DockObject;
+use gio::{ApplicationFlags, DesktopAppInfo};
 use gtk4::gdk::Display;
-use gio::{DesktopAppInfo, ApplicationFlags};
 use gtk4::{glib, prelude::*, CssProvider, StyleContext};
 use once_cell::sync::OnceCell;
+use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use std::{collections::BTreeMap};
 use tokio::sync::mpsc;
 use utils::{block_on, BoxedWindowList, Event, Item, DEST, PATH};
 use zbus::Connection;
 
-mod apps_window;
 mod apps_container;
+mod apps_window;
 mod dock_item;
 mod dock_list;
 mod dock_object;
 mod dock_popover;
-mod utils;
 mod localize;
+mod utils;
 
 const ID: &str = "com.system76.CosmicDockAppList";
 static TX: OnceCell<mpsc::Sender<Event>> = OnceCell::new();
@@ -29,43 +29,43 @@ static TX: OnceCell<mpsc::Sender<Event>> = OnceCell::new();
 fn spawn_zbus(sender: mpsc::Sender<Event>, cached_results: Arc<Mutex<Vec<Item>>>) -> Connection {
     let connection = block_on(Connection::session()).unwrap();
 
-        let conn = connection.clone();
-        let cached_window_list = Arc::clone(&cached_results);
-        let zbus_handle = std::thread::spawn(move || {
-            block_on(async move {
-                loop {
-                    let m = conn
-                        .call_method(Some(DEST), PATH, Some(DEST), "WindowList", &())
-                        .await;
-                    if let Ok(m) = m {
-                        if let Ok(mut reply) = m.body::<Vec<Item>>() {
-                            let mut cached_results = cached_window_list.as_ref().lock().unwrap();
-                            reply.sort_by(|a, b| a.name.cmp(&b.name));
+    let conn = connection.clone();
+    let cached_window_list = Arc::clone(&cached_results);
+    let zbus_handle = std::thread::spawn(move || {
+        block_on(async move {
+            loop {
+                let m = conn
+                    .call_method(Some(DEST), PATH, Some(DEST), "WindowList", &())
+                    .await;
+                if let Ok(m) = m {
+                    if let Ok(mut reply) = m.body::<Vec<Item>>() {
+                        let mut cached_results = cached_window_list.as_ref().lock().unwrap();
+                        reply.sort_by(|a, b| a.name.cmp(&b.name));
 
-                            if cached_results.len() != reply.len()
-                                || !reply.iter().zip(cached_results.iter()).fold(
-                                    0,
-                                    |acc, z: (&Item, &Item)| {
-                                        let (a, b) = z;
-                                        if a.name == b.name {
-                                            acc + 1
-                                        } else {
-                                            acc
-                                        }
-                                    },
-                                ) == cached_results.len()
-                            {
-                                cached_results.splice(.., reply);
-                                let _ = sender.send(Event::WindowList).await;
-                            }
+                        if cached_results.len() != reply.len()
+                            || !reply.iter().zip(cached_results.iter()).fold(
+                                0,
+                                |acc, z: (&Item, &Item)| {
+                                    let (a, b) = z;
+                                    if a.name == b.name {
+                                        acc + 1
+                                    } else {
+                                        acc
+                                    }
+                                },
+                            ) == cached_results.len()
+                        {
+                            cached_results.splice(.., reply);
+                            let _ = sender.send(Event::WindowList).await;
                         }
-                        glib::timeout_future(Duration::from_millis(100)).await;
                     }
+                    glib::timeout_future(Duration::from_millis(100)).await;
                 }
-            })
-        });
+            }
+        })
+    });
 
-        connection
+    connection
 }
 
 pub fn localize() {
@@ -73,10 +73,7 @@ pub fn localize() {
     let requested_languages = i18n_embed::DesktopLanguageRequester::requested_languages();
 
     if let Err(error) = localizer.select(&requested_languages) {
-        eprintln!(
-            "Error while loading language for App List {}",
-            error
-        );
+        eprintln!("Error while loading language for App List {}", error);
     }
 }
 
@@ -107,7 +104,6 @@ fn main() {
 
         let window = CosmicDockAppListWindow::new(&app, tx.clone());
 
-        
         let apps_container = apps_container::AppsContainer::new(tx.clone());
         let cached_results = Arc::new(Mutex::new(Vec::new()));
         let zbus_conn = spawn_zbus(tx.clone(), Arc::clone(&cached_results));

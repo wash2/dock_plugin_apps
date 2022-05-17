@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0-only
 
+use crate::{apps_container::AppsContainer, fl, Event};
 use cascade::cascade;
 use gtk4::{
     gio,
@@ -8,7 +9,6 @@ use gtk4::{
     subclass::prelude::*,
 };
 use tokio::sync::mpsc;
-use crate::{fl, apps_container::AppsContainer, Event};
 
 mod imp;
 

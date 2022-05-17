@@ -4,12 +4,12 @@ use std::cell::Cell;
 use std::cell::RefCell;
 
 use crate::utils::BoxedWindowList;
-use cosmic_plugin::Position;
+use cosmic_dock_epoch_config::config::Anchor;
+use gio::DesktopAppInfo;
+use glib::{ParamFlags, ParamSpec, Value};
 use gtk4::gdk::glib::ParamSpecBoolean;
 use gtk4::gdk::glib::ParamSpecBoxed;
 use gtk4::gdk::glib::ParamSpecObject;
-use gio::DesktopAppInfo;
-use glib::{ParamFlags, ParamSpec, Value};
 use gtk4::glib;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;

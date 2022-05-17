@@ -5,14 +5,15 @@ use crate::dock_object::DockObject;
 use crate::utils::data_path;
 use crate::utils::{BoxedWindowList, Event, Item};
 use cascade::cascade;
-use cosmic_plugin::Position;
-use gtk4::gdk::ContentProvider;
-use gtk4::gdk::Display;
-use gtk4::gdk::ModifierType;
+use cosmic_dock_epoch_config::config::Anchor;
 use gio::DesktopAppInfo;
 use gio::Icon;
 use glib::Object;
 use glib::Type;
+use gtk4::gdk;
+use gtk4::gdk::ContentProvider;
+use gtk4::gdk::Display;
+use gtk4::gdk::ModifierType;
 use gtk4::glib;
 use gtk4::prelude::ListModelExt;
 use gtk4::prelude::*;
@@ -23,7 +24,6 @@ use gtk4::ListView;
 use gtk4::Orientation;
 use gtk4::SignalListItemFactory;
 use gtk4::Window;
-use gtk4::gdk;
 use gtk4::{DragSource, GestureClick};
 use std::borrow::Borrow;
 use std::fs::File;
@@ -175,7 +175,7 @@ impl DockList {
         imp.list_view.set(list_view).unwrap();
     }
 
-    pub fn set_position(&self, position: Position) {
+    pub fn set_position(&self, position: Anchor) {
         let imp = imp::DockList::from_instance(&self);
         let model = imp.model.get().unwrap();
         imp.position.replace(position);

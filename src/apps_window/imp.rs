@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0-only
 
 use crate::apps_container::AppsContainer;
+use gtk4::{glib, subclass::prelude::*};
 use once_cell::sync::OnceCell;
-use gtk4::{
-    glib,
-    subclass::prelude::*,
-};
 // Object holding the state
 #[derive(Default)]
 

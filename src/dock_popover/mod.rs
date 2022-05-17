@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MPL-2.0-only
 
 use cascade::cascade;
-use gtk4::gdk::pango::EllipsizeMode;
 use gio::DesktopAppInfo;
+use gtk4::gdk::pango::EllipsizeMode;
 use gtk4::subclass::prelude::*;
-use gtk4::{gio, glib, gdk};
+use gtk4::{gdk, gio, glib};
 use gtk4::{prelude::*, Label};
 use gtk4::{Box, Button, Image, ListBox, Orientation, Window};
 use tokio::sync::mpsc::Sender;

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MPL-2.0-only
 
-use std::path::Path;
 use crate::utils::BoxedWindowList;
+use gio::{DesktopAppInfo, Icon};
 use gtk4::gdk::glib::Object;
 use gtk4::gdk::subclass::prelude::ObjectSubclassExt;
-use gio::{DesktopAppInfo, Icon};
 use gtk4::prelude::*;
 use gtk4::{glib, Image};
+use std::path::Path;
 
 mod imp;
 

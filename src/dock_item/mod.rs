@@ -5,7 +5,7 @@ use crate::dock_popover::DockPopover;
 use crate::utils::BoxedWindowList;
 use crate::utils::Event;
 use cascade::cascade;
-use cosmic_plugin::Position;
+use cosmic_dock_epoch_config::config::Anchor;
 use gtk4::glib;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
@@ -133,28 +133,28 @@ impl DockItem {
         }
     }
 
-    pub fn set_position(&self, position: Position) {
+    pub fn set_position(&self, position: Anchor) {
         let imp = imp::DockItem::from_instance(&self);
         let item_box = imp.item_box.borrow();
         let dots = imp.dots.borrow();
         if let Some(image) = imp.image.borrow().as_ref() {
             match position {
-                Position::Start => {
+                Anchor::Left => {
                     item_box.set_orientation(Orientation::Horizontal);
                     dots.set_orientation(Orientation::Vertical);
                     item_box.reorder_child_after(&image.clone(), Some(&dots.clone()));
                 }
-                Position::End => {
+                Anchor::Right => {
                     item_box.set_orientation(Orientation::Horizontal);
                     dots.set_orientation(Orientation::Vertical);
                     item_box.reorder_child_after(&dots.clone(), Some(&image.clone()));
                 }
-                Position::Top => {
+                Anchor::Top => {
                     item_box.set_orientation(Orientation::Vertical);
                     dots.set_orientation(Orientation::Horizontal);
                     item_box.reorder_child_after(&image.clone(), Some(&dots.clone()));
                 }
-                Position::Bottom => {
+                Anchor::Bottom => {
                     item_box.set_orientation(Orientation::Vertical);
                     dots.set_orientation(Orientation::Horizontal);
                     item_box.reorder_child_after(&dots.clone(), Some(&image.clone()));
@@ -163,10 +163,10 @@ impl DockItem {
         }
         let popover = imp.popover.borrow();
         popover.set_position(match position {
-            Position::Start => PositionType::Right,
-            Position::End => PositionType::Left,
-            Position::Top => PositionType::Bottom,
-            Position::Bottom => PositionType::Top,
+            Anchor::Left => PositionType::Right,
+            Anchor::Right => PositionType::Left,
+            Anchor::Top => PositionType::Bottom,
+            Anchor::Bottom => PositionType::Top,
         });
     }
 
