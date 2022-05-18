@@ -1,20 +1,7 @@
-listview.apps row:hover {
-    background: transparent;
-    border-radius: 12px;
-    padding: 4px;
-}
-
-listview.apps row {
-    transition: 100ms;
-    background: transparent;
-    border-radius: 12px;
-    padding: 4px;
-    outline-color: transparent;
-}
-
 listview {
+    border-color: transparent;
     background: transparent;
-}
+    outline-color: transparent;}
 
 list.popover_menu {
     background: transparent;
@@ -25,6 +12,22 @@ box.apps {
     background: transparent;
 }
 
-window.root_window {
+button.dock_item {
+    transition: 100ms;
+    border-color: transparent;
     background: transparent;
+    outline-color: transparent;
+}
+
+button.dock_item:hover {
+    transition: 100ms;
+    border-color: rgba(255, 255, 255, 0.1);
+    outline-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+*.transparent {
+    border-color: transparent;
+    background: transparent;
+    outline-color: transparent;
 }

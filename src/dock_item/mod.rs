@@ -30,6 +30,7 @@ impl DockItem {
         let self_: DockItem = glib::Object::new(&[]).expect("Failed to create DockItem");
 
         let item_box = Box::new(Orientation::Vertical, 0);
+        item_box.add_css_class("transparent");
         cascade! {
             &self_;
             ..set_child(Some(&item_box));

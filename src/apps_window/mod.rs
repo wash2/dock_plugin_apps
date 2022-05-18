@@ -32,7 +32,7 @@ impl CosmicDockAppListWindow {
             ..set_decorated(false);
             ..set_resizable(false);
             ..set_title(Some(&fl!("cosmic-dock-app-list")));
-            ..add_css_class("root_window");
+            ..add_css_class("transparent");
         };
         let app_list = AppsContainer::new(tx);
         self_.set_child(Some(&app_list));

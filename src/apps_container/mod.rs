@@ -32,7 +32,7 @@ impl AppsContainer {
             &self_;
             ..set_orientation(Orientation::Horizontal);
             ..set_spacing(4);
-            ..add_css_class("apps");
+            ..add_css_class("transparent");
             // ..add_css_class("dock_container");
         };
 

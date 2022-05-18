@@ -166,7 +166,7 @@ impl DockList {
         let list_view = cascade! {
             ListView::default();
             ..set_orientation(Orientation::Horizontal);
-            ..add_css_class("apps");
+            ..add_css_class("transparent");
         };
         if imp.type_.get().unwrap() == &DockListType::Saved {
             list_view.set_width_request(64);
