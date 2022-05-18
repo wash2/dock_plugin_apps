@@ -43,7 +43,6 @@ impl DockPopover {
         self.reset_menu();
         cascade! {
             &self;
-            ..set_spacing(4);
             ..set_orientation(Orientation::Vertical);
             ..set_hexpand(true);
         };

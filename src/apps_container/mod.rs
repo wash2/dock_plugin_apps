@@ -30,7 +30,6 @@ impl AppsContainer {
         cascade! {
             &self_;
             ..set_orientation(Orientation::Horizontal);
-            ..set_spacing(4);
             ..add_css_class("transparent");
             // ..add_css_class("dock_container");
         };
@@ -38,30 +37,30 @@ impl AppsContainer {
         let saved_app_list_view = DockList::new(DockListType::Saved, tx.clone());
         self_.append(&saved_app_list_view);
 
-        let separator_container = cascade! {
-            gtk4::Box::new(Orientation::Vertical, 0);
-            ..set_margin_top(8);
-            ..set_margin_bottom(8);
-            ..set_vexpand(true);
-        };
-        self_.append(&separator_container);
-        let separator = cascade! {
-            Separator::new(Orientation::Vertical);
-            ..set_margin_start(8);
-            ..set_margin_end(8);
-            ..set_vexpand(true);
-            ..add_css_class("dock_separator");
-        };
-        separator_container.append(&separator);
+        // let separator_container = cascade! {
+        //     gtk4::Box::new(Orientation::Vertical, 0);
+        //     ..set_margin_top(8);
+        //     ..set_margin_bottom(8);
+        //     ..set_vexpand(true);
+        // };
+        // self_.append(&separator_container);
+        // let separator = cascade! {
+        //     Separator::new(Orientation::Vertical);
+        //     ..set_margin_start(8);
+        //     ..set_margin_end(8);
+        //     ..set_vexpand(true);
+        //     ..add_css_class("dock_separator");
+        // };
+        // separator_container.append(&separator);
         let active_app_list_view = DockList::new(DockListType::Active, tx.clone());
         self_.append(&active_app_list_view);
-        self_.connect_orientation_notify(glib::clone!(@weak separator => move |c| {
-            dbg!(c.orientation());
-            separator.set_orientation(match c.orientation() {
-                Orientation::Horizontal => Orientation::Vertical,
-                _ => Orientation::Horizontal,
-            });
-        }));
+        // self_.connect_orientation_notify(glib::clone!(@weak separator => move |c| {
+        //     dbg!(c.orientation());
+        //     separator.set_orientation(match c.orientation() {
+        //         Orientation::Horizontal => Orientation::Vertical,
+        //         _ => Orientation::Horizontal,
+        //     });
+        // }));
 
         imp.saved_list.set(saved_app_list_view).unwrap();
         imp.active_list.set(active_app_list_view).unwrap();

@@ -31,7 +31,7 @@ fn spawn_zbus(sender: mpsc::Sender<Event>, cached_results: Arc<Mutex<Vec<Item>>>
 
     let conn = connection.clone();
     let cached_window_list = Arc::clone(&cached_results);
-    let zbus_handle = std::thread::spawn(move || {
+    let _zbus_handle = std::thread::spawn(move || {
         block_on(async move {
             loop {
                 let m = conn
@@ -59,7 +59,7 @@ fn spawn_zbus(sender: mpsc::Sender<Event>, cached_results: Arc<Mutex<Vec<Item>>>
                             let _ = sender.send(Event::WindowList).await;
                         }
                     }
-                    glib::timeout_future(Duration::from_millis(100)).await;
+                    glib::timeout_future(Duration::from_millis(200)).await;
                 }
             }
         })
@@ -106,23 +106,23 @@ fn main() {
 
         let apps_container = apps_container::AppsContainer::new(tx.clone());
         let cached_results = Arc::new(Mutex::new(Vec::new()));
-        let zbus_conn = spawn_zbus(tx.clone(), Arc::clone(&cached_results));
+        // let zbus_conn = spawn_zbus(tx.clone(), Arc::clone(&cached_results));
         TX.set(tx.clone()).unwrap();
 
         let _ = glib::MainContext::default().spawn_local(async move {
             while let Some(event) = rx.recv().await {
                 match event {
                     Event::Activate(e) => {
-                        let _activate_window = zbus_conn
-                            .call_method(Some(DEST), PATH, Some(DEST), "WindowFocus", &((e,)))
-                            .await
-                            .expect("Failed to focus selected window");
+                        // let _activate_window = zbus_conn
+                        //     .call_method(Some(DEST), PATH, Some(DEST), "WindowFocus", &((e,)))
+                        //     .await
+                        //     .expect("Failed to focus selected window");
                     }
                     Event::Close(e) => {
-                        let _activate_window = zbus_conn
-                            .call_method(Some(DEST), PATH, Some(DEST), "WindowQuit", &((e,)))
-                            .await
-                            .expect("Failed to close selected window");
+                        // let _activate_window = zbus_conn
+                        //     .call_method(Some(DEST), PATH, Some(DEST), "WindowQuit", &((e,)))
+                        //     .await
+                        //     .expect("Failed to close selected window");
                     }
                     Event::Favorite((name, should_favorite)) => {
                         dbg!(&name);
@@ -171,7 +171,7 @@ fn main() {
                         let cached_results = cached_results.as_ref().lock().unwrap();
                         let stack_active = cached_results.iter().fold(
                             BTreeMap::new(),
-                            |mut acc: BTreeMap<String, BoxedWindowList>, elem| {
+                            |mut acc: BTreeMap<String, BoxedWindowList>, elem:&Item| {
                                 if let Some(v) = acc.get_mut(&elem.description) {
                                     v.0.push(elem.clone());
                                 } else {

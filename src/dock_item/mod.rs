@@ -46,10 +46,6 @@ impl DockItem {
         };
         let dots = cascade! {
             Box::new(Orientation::Horizontal, 4);
-            ..set_margin_bottom(4);
-            ..set_margin_top(4);
-            ..set_margin_start(4);
-            ..set_margin_end(4);
             ..set_hexpand(true);
             ..set_halign(Align::Center);
             ..set_valign(Align::Center);
@@ -143,21 +139,29 @@ impl DockItem {
                 Anchor::Left => {
                     item_box.set_orientation(Orientation::Horizontal);
                     dots.set_orientation(Orientation::Vertical);
+                    dots.set_margin_bottom(4);
+                    dots.set_margin_top(4);
                     item_box.reorder_child_after(&image.clone(), Some(&dots.clone()));
                 }
                 Anchor::Right => {
                     item_box.set_orientation(Orientation::Horizontal);
                     dots.set_orientation(Orientation::Vertical);
+                    dots.set_margin_bottom(4);
+                    dots.set_margin_top(4);
                     item_box.reorder_child_after(&dots.clone(), Some(&image.clone()));
                 }
                 Anchor::Top => {
                     item_box.set_orientation(Orientation::Vertical);
                     dots.set_orientation(Orientation::Horizontal);
+                    dots.set_margin_start(4);
+                    dots.set_margin_end(4);
                     item_box.reorder_child_after(&image.clone(), Some(&dots.clone()));
                 }
                 Anchor::Bottom => {
                     item_box.set_orientation(Orientation::Vertical);
                     dots.set_orientation(Orientation::Horizontal);
+                    dots.set_margin_start(4);
+                    dots.set_margin_end(4);
                     item_box.reorder_child_after(&dots.clone(), Some(&image.clone()));
                 }
             };
@@ -169,6 +173,7 @@ impl DockItem {
             Anchor::Top => PositionType::Bottom,
             Anchor::Bottom => PositionType::Top,
         });
+        
     }
 
     pub fn add_popover(&self, obj: &DockObject) {
