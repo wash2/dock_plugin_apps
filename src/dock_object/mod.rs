@@ -66,7 +66,7 @@ impl DockObject {
             image.set_from_gicon(&icon);
             image
         } else {
-            println!("failed to load image");
+            eprintln!("failed to load image");
             Image::new()
         }
     }

@@ -24,7 +24,6 @@ glib::wrapper! {
 
 impl AppsContainer {
     pub fn new(tx: Sender<Event>) -> Self {
-        println!("setting up app container");
         let self_: Self = glib::Object::new(&[]).expect("Failed to create AppsContainer");
         let imp = imp::AppsContainer::from_instance(&self_);
 
