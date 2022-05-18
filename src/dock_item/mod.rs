@@ -41,7 +41,7 @@ impl DockItem {
             Image::new();
             ..set_hexpand(true);
             ..set_halign(Align::Center);
-            ..set_pixel_size(64);
+            ..set_pixel_size(48);
             ..add_css_class("dock");
         };
         let dots = cascade! {
@@ -101,7 +101,7 @@ impl DockItem {
             dock_object.get_image();
             ..set_hexpand(true);
             ..set_halign(Align::Center);
-            ..set_pixel_size(64);
+            ..set_pixel_size(48);
             ..set_tooltip_text(dock_object.get_name().as_deref());
         };
         let old_image = imp.image.replace(None);

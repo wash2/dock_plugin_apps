@@ -8,11 +8,11 @@ list.popover_menu {
 }
 
 box.apps {
-    border-radius: 12px;
     background: transparent;
 }
 
 button.dock_item {
+    border-radius: 24px;
     transition: 100ms;
     border-color: transparent;
     background: transparent;
@@ -20,6 +20,7 @@ button.dock_item {
 }
 
 button.dock_item:hover {
+    border-radius: 24px;
     transition: 100ms;
     border-color: rgba(255, 255, 255, 0.1);
     outline-color: rgba(255, 255, 255, 0.1);
