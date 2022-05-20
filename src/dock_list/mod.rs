@@ -331,12 +331,19 @@ impl DockList {
         let drag_source = &imp.drag_source.get().unwrap();
         let tx = imp.tx.get().unwrap().clone();
         drop_controller.connect_drop(
-            glib::clone!(@weak model, @weak list_view, @weak drag_end, @weak drag_source => @default-return true, move |_self, drop_value, x, _y| {
+            glib::clone!(@weak model, @weak list_view, @weak drag_end, @weak drag_source => @default-return true, move |_self, drop_value, x, y| {
                 //calculate insertion location
                 let max_x = list_view.allocated_width();
+                let max_y = list_view.allocated_height();
                 let n_buckets = model.n_items() * 2;
 
-                let drop_bucket = (x * n_buckets as f64 / (max_x as f64 + 0.1)) as u32;
+                let (indexing_dim, indexing_length, _other_dim, _other_length) = match list_view.orientation() {
+                    Orientation::Horizontal => (x, max_x, y, max_y),
+                    Orientation::Vertical => (y, max_y, x, max_x),
+                    _ => (x, max_x, y, max_y),
+                };
+
+                let drop_bucket = (indexing_dim * n_buckets as f64 / (indexing_length as f64 + 0.1)) as u32;
                 let index = if drop_bucket == 0 {
                     0
                 } else if drop_bucket == n_buckets - 1 {
