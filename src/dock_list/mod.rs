@@ -224,10 +224,15 @@ impl DockList {
         controller.connect_released(glib::clone!(@weak model, @weak list_view, @weak popover_menu_index => move |self_, _, x, y| {
             let max_x = list_view.allocated_width();
             let max_y = list_view.allocated_height();
+            let (indexing_dim, indexing_length, other_dim, other_length) = match list_view.orientation() {
+                Orientation::Horizontal => (x, max_x, y, max_y),
+                Orientation::Vertical => (y, max_y, x, max_x),
+                _ => return,
+            };
             // dbg!(max_y);
             // dbg!(y);
             let n_buckets = model.n_items();
-            let index = (x * n_buckets as f64 / (max_x as f64 + 0.1)) as u32;
+            let index = (indexing_dim * n_buckets as f64 / (indexing_length as f64 + 0.1)) as u32;
             // dbg!(self_.current_button());
             // dbg!(self_.last_event(self_.current_sequence().as_ref()));
             let click_modifier = if let Some(event) =  self_.last_event(self_.current_sequence().as_ref()) {
@@ -260,7 +265,7 @@ impl DockList {
                 }
                 return;
             }
-            if y > f64::from(max_y) || y < 0.0 || x > f64::from(max_x) || x < 0.0 {
+            if other_dim > f64::from(other_length) || y < 0.0 || indexing_dim > f64::from(indexing_length) || indexing_dim < 0.0 {
                 // println!("out of bounds click...");
                 return;
             }
