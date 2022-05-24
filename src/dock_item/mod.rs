@@ -5,7 +5,7 @@ use crate::dock_popover::DockPopover;
 use crate::utils::BoxedWindowList;
 use crate::utils::Event;
 use cascade::cascade;
-use cosmic_dock_epoch_config::config::Anchor;
+use cosmic_panel_config::config::Anchor;
 use gtk4::glib;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
@@ -98,7 +98,8 @@ impl DockItem {
             ..set_hexpand(true);
             ..set_halign(Align::Center);
             ..set_pixel_size(48);
-            ..set_tooltip_text(dock_object.get_name().as_deref());
+            // TODO: add tooltips back when cosmic panel can better handle popup repositioning...
+            // ..set_tooltip_text(dock_object.get_name().as_deref());
         };
         let old_image = imp.image.replace(None);
         if let Some(old_image) = old_image {

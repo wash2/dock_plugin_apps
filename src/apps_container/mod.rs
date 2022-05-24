@@ -5,8 +5,8 @@ use crate::dock_list::DockList;
 use crate::dock_list::DockListType;
 use crate::utils::Event;
 use cascade::cascade;
-use cosmic_dock_epoch_config::config::Anchor;
-use cosmic_dock_epoch_config::config::CosmicDockConfig;
+use cosmic_panel_config::config::Anchor;
+use cosmic_panel_config::config::CosmicPanelConfig;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 use gtk4::Orientation;
@@ -91,7 +91,7 @@ impl AppsContainer {
 
     pub fn load_dock_config(&self) {
         if let Ok(Ok(config)) =
-            env::var("COSMIC_DOCK_CONFIG").map(|c_name| CosmicDockConfig::load(&c_name))
+            env::var("COSMIC_DOCK_CONFIG").map(|c_name| CosmicPanelConfig::load(&c_name, None))
         {
             self.set_position(config.anchor);
         }

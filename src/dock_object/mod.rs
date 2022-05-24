@@ -62,12 +62,15 @@ impl DockObject {
             let image = Image::new();
             let icon = app_info
                 .icon()
-                .unwrap_or(Icon::for_string("image-missing").expect("Failed to set default icon"));
+                .unwrap_or_else(|| Icon::for_string("image-missing").expect("Failed to set default icon"));
             image.set_from_gicon(&icon);
+            image.set_tooltip_text(None);
             image
         } else {
             eprintln!("failed to load image");
-            Image::new()
+            let image = Image::new();
+            image.set_tooltip_text(None);
+            image
         }
     }
 
