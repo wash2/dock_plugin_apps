@@ -48,7 +48,7 @@ impl CosmicDockAppListWindow {
         let action_quit = gio::SimpleAction::new("quit", None);
         action_quit.connect_activate(glib::clone!(@weak window => move |_, _| {
             window.close();
-            window.application().map(|a| a.quit());
+            if let Some(a) = window.application() { a.quit() }
             std::process::exit(0);
         }));
         self.add_action(&action_quit);

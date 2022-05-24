@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0-only
 use gtk4::glib;
 use gtk4::subclass::prelude::*;
-use gtk4::Box;
-use gtk4::DropTarget;
-use gtk4::EventControllerMotion;
-use gtk4::Revealer;
 use once_cell::sync::OnceCell;
 
 use crate::dock_list::DockList;

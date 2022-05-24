@@ -4,7 +4,6 @@ use std::cell::Cell;
 use std::cell::RefCell;
 
 use crate::utils::BoxedWindowList;
-use cosmic_panel_config::config::Anchor;
 use gio::DesktopAppInfo;
 use glib::{ParamFlags, ParamSpec, Value};
 use gtk4::gdk::glib::ParamSpecBoolean;

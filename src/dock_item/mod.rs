@@ -11,7 +11,6 @@ use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 use gtk4::Box;
 use gtk4::Image;
-use gtk4::Label;
 use gtk4::Orientation;
 use gtk4::Popover;
 use gtk4::{Align, PositionType};
@@ -105,7 +104,7 @@ impl DockItem {
         if let Some(old_image) = old_image {
             imp.item_box.borrow().remove(&old_image);
             imp.item_box.borrow().prepend(&image);
-            imp.image.replace(Some(image.clone()));
+            imp.image.replace(Some(image));
         }
         let active = dock_object.property::<BoxedWindowList>("active");
         let dots = imp.dots.borrow();
@@ -132,7 +131,7 @@ impl DockItem {
     }
 
     pub fn set_position(&self, position: Anchor) {
-        let imp = imp::DockItem::from_instance(&self);
+        let imp = imp::DockItem::from_instance(self);
         let item_box = imp.item_box.borrow();
         let dots = imp.dots.borrow();
         if let Some(image) = imp.image.borrow().as_ref() {

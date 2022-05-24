@@ -10,7 +10,6 @@ use cosmic_panel_config::config::CosmicPanelConfig;
 use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 use gtk4::Orientation;
-use gtk4::Separator;
 use gtk4::{gio, glib};
 use tokio::sync::mpsc::Sender;
 
@@ -52,7 +51,7 @@ impl AppsContainer {
         //     ..add_css_class("dock_separator");
         // };
         // separator_container.append(&separator);
-        let active_app_list_view = DockList::new(DockListType::Active, tx.clone());
+        let active_app_list_view = DockList::new(DockListType::Active, tx);
         self_.append(&active_app_list_view);
         // self_.connect_orientation_notify(glib::clone!(@weak separator => move |c| {
         //     dbg!(c.orientation());
@@ -84,7 +83,7 @@ impl AppsContainer {
 
     pub fn set_position(&self, position: Anchor) {
         self.set_orientation(position.into());
-        let imp = imp::AppsContainer::from_instance(&self);
+        let imp = imp::AppsContainer::from_instance(self);
         imp.saved_list.get().unwrap().set_position(position);
         imp.active_list.get().unwrap().set_position(position);
     }

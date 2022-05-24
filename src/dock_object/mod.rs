@@ -37,7 +37,7 @@ impl DockObject {
     }
 
     pub fn get_path(&self) -> Option<String> {
-        let imp = imp::DockObject::from_instance(&self);
+        let imp = imp::DockObject::from_instance(self);
         if let Some(app_info) = imp.appinfo.borrow().as_ref() {
             app_info
                 .filename()
@@ -48,16 +48,12 @@ impl DockObject {
     }
 
     pub fn get_name(&self) -> Option<String> {
-        let imp = imp::DockObject::from_instance(&self);
-        if let Some(app_info) = imp.appinfo.borrow().as_ref() {
-            Some(app_info.name().to_string())
-        } else {
-            None
-        }
+        let imp = imp::DockObject::from_instance(self);
+        imp.appinfo.borrow().as_ref().map(|app_info| app_info.name().to_string())
     }
 
     pub fn get_image(&self) -> gtk4::Image {
-        let imp = imp::DockObject::from_instance(&self);
+        let imp = imp::DockObject::from_instance(self);
         if let Some(app_info) = imp.appinfo.borrow().as_ref() {
             let image = Image::new();
             let icon = app_info
@@ -75,12 +71,12 @@ impl DockObject {
     }
 
     pub fn set_saved(&self, is_saved: bool) {
-        let imp = imp::DockObject::from_instance(&self);
+        let imp = imp::DockObject::from_instance(self);
         imp.saved.replace(is_saved);
     }
 
     pub fn from_search_results(results: BoxedWindowList) -> Self {
-        let appinfo = if let Some(first) = results.0.iter().next() {
+        let appinfo = if let Some(first) = results.0.get(0) {
             xdg::BaseDirectories::new()
                 .expect("could not access XDG Base directory")
                 .get_data_dirs()

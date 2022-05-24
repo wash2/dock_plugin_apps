@@ -23,9 +23,7 @@ use gtk4::IconTheme;
 use gtk4::ListView;
 use gtk4::Orientation;
 use gtk4::SignalListItemFactory;
-use gtk4::Window;
 use gtk4::{DragSource, GestureClick};
-use std::borrow::Borrow;
 use std::fs::File;
 use std::path::Path;
 use tokio::sync::mpsc::Sender;
@@ -162,7 +160,7 @@ impl DockList {
     }
 
     fn layout(&self) {
-        let imp = imp::DockList::from_instance(&self);
+        let imp = imp::DockList::from_instance(self);
         let list_view = cascade! {
             ListView::default();
             ..set_orientation(Orientation::Horizontal);
@@ -176,12 +174,12 @@ impl DockList {
     }
 
     pub fn set_position(&self, position: Anchor) {
-        let imp = imp::DockList::from_instance(&self);
+        let imp = imp::DockList::from_instance(self);
         let model = imp.model.get().unwrap();
         imp.position.replace(position);
         model.items_changed(0, model.n_items(), model.n_items());
 
-        let imp = imp::DockList::from_instance(&self);
+        let imp = imp::DockList::from_instance(self);
         imp.list_view
             .get()
             .unwrap()
@@ -203,7 +201,7 @@ impl DockList {
             let model = self.model();
             self.restore_data();
             model.connect_items_changed(|model, _, _removed, _added| {
-                Self::store_data(&model);
+                Self::store_data(model);
             });
         }
     }
@@ -235,19 +233,13 @@ impl DockList {
             let index = (indexing_dim * n_buckets as f64 / (indexing_length as f64 + 0.1)) as u32;
             // dbg!(self_.current_button());
             // dbg!(self_.last_event(self_.current_sequence().as_ref()));
-            let click_modifier = if let Some(event) =  self_.last_event(self_.current_sequence().as_ref()) {
-                    // dbg!(&event);
-                    Some(event.modifier_state())
-                }
-                else {
-                    None
-                };
+            let click_modifier = self_.last_event(self_.current_sequence().as_ref()).map(|event| event.modifier_state());
             // dbg!(click_modifier);
             // Launch the application when an item of the list is activated
 
             let tx = tx.clone();
             let focus_window = move |first_focused_item: &Item| {
-                let entity = first_focused_item.entity.clone();
+                let entity = first_focused_item.entity;
                 let tx = tx.clone();
                 glib::MainContext::default().spawn_local(async move {
                    let _ = tx.clone().send(Event::Activate(entity)).await;
@@ -274,7 +266,7 @@ impl DockList {
                 if let Ok(dock_object) = item.downcast::<DockObject>() {
                     let active = dock_object.property::<BoxedWindowList>("active");
                     let app_info = dock_object.property::<Option<DesktopAppInfo>>("appinfo");
-                    match (self_.current_button(), click_modifier, active.0.iter().next(), app_info) {
+                    match (self_.current_button(), click_modifier, active.0.get(0), app_info) {
                         (click, Some(click_modifier), Some(first_focused_item), _) if click == 1 && !click_modifier.contains(ModifierType::CONTROL_MASK) => focus_window(first_focused_item),
                         (click, None, Some(first_focused_item), _) if click == 1 => focus_window(first_focused_item),
                         (click, _, _, Some(app_info)) | (click, _, None, Some(app_info)) if click != 3  => {
@@ -286,7 +278,7 @@ impl DockList {
                         }
                         (click, _, _, _) if click == 3 => {
                             // println!("handling right click");
-                            if let Some(old_index) = popover_menu_index.get().clone() {
+                            if let Some(old_index) = popover_menu_index.get() {
                                 if let Some(item) = model.item(old_index) {
                                     if let Ok(dock_object) = item.downcast::<DockObject>() {
                                         dock_object.set_popover(false);
@@ -412,9 +404,9 @@ impl DockList {
         let imp = imp::DockList::from_instance(self);
         let type_ = imp.type_.get().unwrap();
 
-        let actions = match type_ {
-            &DockListType::Saved => gdk::DragAction::MOVE,
-            &DockListType::Active => gdk::DragAction::COPY,
+        let actions = match *type_ {
+            DockListType::Saved => gdk::DragAction::MOVE,
+            DockListType::Active => gdk::DragAction::COPY,
         };
         let drag_source = DragSource::builder()
             .name("dock drag source")
@@ -425,7 +417,7 @@ impl DockList {
         let list_view = imp.list_view.get().unwrap();
         let drag_end = &imp.drag_end_signal;
         let drag_cancel = &imp.drag_cancel_signal;
-        let type_ = type_.clone();
+        let type_ = *type_;
         let tx = imp.tx.get().unwrap().clone();
         list_view.add_controller(&drag_source);
         drag_source.connect_prepare(glib::clone!(@weak model, @weak list_view, @weak drag_end, @weak drag_cancel => @default-return None, move |self_, x, _y| {
@@ -474,7 +466,7 @@ impl DockList {
                     if let Some(app_info) = dock_object.property::<Option<DesktopAppInfo>>("appinfo") {
                         let icon = app_info
                             .icon()
-                            .unwrap_or(Icon::for_string("image-missing").expect("Failed to set default icon"));
+                            .unwrap_or_else(|| Icon::for_string("image-missing").expect("Failed to set default icon"));
 
                         if let Some(default_display) = &Display::default() {
                             let icon_theme = IconTheme::for_display(default_display);

@@ -102,7 +102,7 @@ fn main() {
         load_css();
         let (tx, mut rx) = mpsc::channel(100);
 
-        let window = CosmicDockAppListWindow::new(&app, tx.clone());
+        let window = CosmicDockAppListWindow::new(app, tx.clone());
 
         let apps_container = apps_container::AppsContainer::new(tx.clone());
         let cached_results = Arc::new(Mutex::new(Vec::new()));
@@ -112,13 +112,13 @@ fn main() {
         let _ = glib::MainContext::default().spawn_local(async move {
             while let Some(event) = rx.recv().await {
                 match event {
-                    Event::Activate(e) => {
+                    Event::Activate(_) => {
                         // let _activate_window = zbus_conn
                         //     .call_method(Some(DEST), PATH, Some(DEST), "WindowFocus", &((e,)))
                         //     .await
                         //     .expect("Failed to focus selected window");
                     }
-                    Event::Close(e) => {
+                    Event::Close(_) => {
                         // let _activate_window = zbus_conn
                         //     .call_method(Some(DEST), PATH, Some(DEST), "WindowQuit", &((e,)))
                         //     .await
@@ -208,20 +208,20 @@ fn main() {
                                         let active = stack_active.remove(i);
                                         dock_obj.set_property("active", active.to_value());
                                         saved_app_model.items_changed(
-                                            saved_i.try_into().unwrap(),
+                                            saved_i,
                                             0,
                                             0,
                                         );
-                                    } else if let Some(_) = cached_results
+                                    } else if cached_results
                                         .iter()
-                                        .find(|s| s.description == cur_app_info.name())
+                                        .any(|s| s.description == cur_app_info.name())
                                     {
                                         dock_obj.set_property(
                                             "active",
                                             BoxedWindowList(Vec::new()).to_value(),
                                         );
                                         saved_app_model.items_changed(
-                                            saved_i.try_into().unwrap(),
+                                            saved_i,
                                             0,
                                             0,
                                         );
@@ -280,20 +280,20 @@ fn main() {
                                         let active = stack_active.remove(i);
                                         dock_obj.set_property("active", active.to_value());
                                         saved_app_model.items_changed(
-                                            saved_i.try_into().unwrap(),
+                                            saved_i,
                                             0,
                                             0,
                                         );
-                                    } else if let Some(_) = results
+                                    } else if results
                                         .iter()
-                                        .find(|s| s.description == cur_app_info.name())
+                                        .any(|s| s.description == cur_app_info.name())
                                     {
                                         dock_obj.set_property(
                                             "active",
                                             BoxedWindowList(Vec::new()).to_value(),
                                         );
                                         saved_app_model.items_changed(
-                                            saved_i.try_into().unwrap(),
+                                            saved_i,
                                             0,
                                             0,
                                         );
