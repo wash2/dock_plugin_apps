@@ -6,7 +6,7 @@ use gtk4::gdk::pango::EllipsizeMode;
 use gtk4::subclass::prelude::*;
 use gtk4::{gdk, gio, glib};
 use gtk4::{prelude::*, Label};
-use gtk4::{Box, Button, Image, ListBox, Orientation, Window};
+use gtk4::{Box, Button, Image, ListBox, Orientation};
 use tokio::sync::mpsc::Sender;
 
 use crate::dock_object::DockObject;
@@ -32,7 +32,7 @@ impl DockPopover {
     }
 
     pub fn set_dock_object(&self, dock_object: &DockObject, update_layout: bool) {
-        let imp = imp::DockPopover::from_instance(&self);
+        let imp = imp::DockPopover::from_instance(self);
         imp.dock_object.replace(Some(dock_object.clone()));
         if update_layout {
             self.update_layout();
@@ -48,7 +48,7 @@ impl DockPopover {
         };
 
         // build menu
-        let imp = imp::DockPopover::from_instance(&self);
+        let imp = imp::DockPopover::from_instance(self);
         let dock_object = imp.dock_object.borrow();
         let menu_handle = imp.menu_handle.borrow();
         if let Some(dock_object) = dock_object.as_ref() {
@@ -57,7 +57,7 @@ impl DockPopover {
             };
             menu_handle.append(&all_windows_item_container);
             let window_list = dock_object.property::<BoxedWindowList>("active");
-            if window_list.0.len() == 0 {
+            if window_list.0.is_empty() {
                 all_windows_item_container.hide();
             } else {
                 let window_listbox = cascade! {
@@ -133,7 +133,7 @@ impl DockPopover {
                     ..add_css_class("popover_menu");
                 };
                 menu_handle.append(&quit_all_item);
-                if window_list.0.len() == 0 {
+                if window_list.0.is_empty() {
                     quit_all_item.hide();
                 }
                 imp.quit_all_item.replace(quit_all_item);
@@ -144,7 +144,7 @@ impl DockPopover {
     }
 
     fn layout(&self) {
-        let imp = imp::DockPopover::from_instance(&self);
+        let imp = imp::DockPopover::from_instance(self);
         let menu_handle = cascade! {
             Box::new(Orientation::Vertical, 4);
             ..add_css_class("popover_menu");
@@ -164,13 +164,13 @@ impl DockPopover {
         };
         self.append(&menu_handle);
 
-        let imp = imp::DockPopover::from_instance(&self);
+        let imp = imp::DockPopover::from_instance(self);
         let old_menu_handle = imp.menu_handle.replace(menu_handle);
         self.remove(&old_menu_handle);
     }
 
     fn setup_handlers(&self) {
-        let imp = imp::DockPopover::from_instance(&self);
+        let imp = imp::DockPopover::from_instance(self);
         let dock_object = imp.dock_object.borrow();
         let launch_new_item = imp.launch_new_item.borrow();
         let favorite_item = imp.favorite_item.borrow();
@@ -197,7 +197,7 @@ impl DockPopover {
             quit_all_item.connect_clicked(glib::clone!(@weak dock_object => move |_| {
                 let active = dock_object.property::<BoxedWindowList>("active").0;
                 for w in active {
-                    let entity = w.entity.clone();
+                    let entity = w.entity;
                     let tx = tx.clone();
                     glib::MainContext::default().spawn_local(async move {
                         let _ = tx.clone().send(Event::Close(entity)).await;
@@ -213,7 +213,7 @@ impl DockPopover {
                 let tx = tx.clone();
                 glib::MainContext::default().spawn_local(async move {
                     if let Some(name) = dock_object.get_name() {
-                        let _ = tx.clone().send(Event::Favorite((name.into(), !saved))).await;
+                        let _ = tx.clone().send(Event::Favorite((name, !saved))).await;
                     }
                 });
                 self_.emit_hide();
@@ -232,7 +232,7 @@ impl DockPopover {
             window_listbox.connect_row_activated(
                 glib::clone!(@weak dock_object => move |_, item| {
                     let active = dock_object.property::<BoxedWindowList>("active").0;
-                    let entity = active[usize::try_from(item.index()).unwrap()].entity.clone();
+                    let entity = active[usize::try_from(item.index()).unwrap()].entity;
                     let tx = tx.clone();
                     glib::MainContext::default().spawn_local(async move {
                         let _ = tx.send(Event::Activate(entity)).await;

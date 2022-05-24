@@ -57,6 +57,7 @@ impl DockItem {
             Popover::new();
             ..set_autohide(true);
             ..add_css_class("dock");
+            ..set_has_arrow(false);
         };
         item_box.append(&popover);
         let self_clone = self_.clone();
@@ -97,8 +98,7 @@ impl DockItem {
             ..set_hexpand(true);
             ..set_halign(Align::Center);
             ..set_pixel_size(48);
-            // TODO: add tooltips back when cosmic panel can better handle popup repositioning...
-            // ..set_tooltip_text(dock_object.get_name().as_deref());
+            ..set_tooltip_text(dock_object.get_name().as_deref());
         };
         let old_image = imp.image.replace(None);
         if let Some(old_image) = old_image {
