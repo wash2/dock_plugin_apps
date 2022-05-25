@@ -5,7 +5,7 @@ use crate::dock_object::DockObject;
 use crate::utils::data_path;
 use crate::utils::{BoxedWindowList, Event, Item};
 use cascade::cascade;
-use cosmic_panel_config::config::Anchor;
+use cosmic_panel_config::config::{Anchor, CosmicPanelConfig};
 use gio::DesktopAppInfo;
 use gio::Icon;
 use glib::Object;
@@ -49,11 +49,12 @@ impl Default for DockListType {
 }
 
 impl DockList {
-    pub fn new(type_: DockListType, tx: Sender<Event>) -> Self {
+    pub fn new(type_: DockListType, tx: Sender<Event>, config: CosmicPanelConfig) -> Self {
         let self_: DockList = glib::Object::new(&[]).expect("Failed to create DockList");
         let imp = imp::DockList::from_instance(&self_);
         imp.type_.set(type_).unwrap();
         imp.tx.set(tx).unwrap();
+        imp.config.set(config).unwrap();
         self_.layout();
         //dnd behavior is different for each type, as well as the data in the model
         self_.setup_model();
@@ -515,9 +516,10 @@ impl DockList {
         let factory = SignalListItemFactory::new();
         let model = imp.model.get().expect("Failed to get saved app model.");
         let tx = imp.tx.get().unwrap().clone();
+        let icon_size = imp.config.get().unwrap().get_applet_icon_size();
         factory.connect_setup(
             glib::clone!(@weak popover_menu_index, @weak model => move |_, list_item| {
-                let dock_item = DockItem::new(tx.clone());
+                let dock_item = DockItem::new(tx.clone(), icon_size);
                 dock_item
                     .connect_local("popover-closed", false, move |_| {
                         if let Some(old_index) = popover_menu_index.replace(None) {

@@ -6,7 +6,7 @@ use gtk4::prelude::*;
 use gtk4::subclass::prelude::*;
 use once_cell::sync::Lazy;
 use once_cell::sync::OnceCell;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use tokio::sync::mpsc::Sender;
 
@@ -21,6 +21,7 @@ pub struct DockItem {
     pub popover: Rc<RefCell<gtk4::Popover>>,
     pub popover_menu: Rc<RefCell<Option<DockPopover>>>,
     pub tx: OnceCell<Sender<Event>>,
+    pub icon_size: Rc<Cell<u32>>,
 }
 
 #[glib::object_subclass]

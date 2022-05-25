@@ -25,7 +25,7 @@ glib::wrapper! {
 }
 
 impl DockItem {
-    pub fn new(tx: Sender<Event>) -> Self {
+    pub fn new(tx: Sender<Event>, icon_size: u32) -> Self {
         let self_: DockItem = glib::Object::new(&[]).expect("Failed to create DockItem");
 
         let item_box = Box::new(Orientation::Vertical, 0);
@@ -40,7 +40,7 @@ impl DockItem {
             Image::new();
             ..set_hexpand(true);
             ..set_halign(Align::Center);
-            ..set_pixel_size(48);
+            ..set_pixel_size(icon_size.try_into().unwrap());
             ..add_css_class("dock");
         };
         let dots = cascade! {
@@ -81,6 +81,7 @@ impl DockItem {
         );
 
         let imp = imp::DockItem::from_instance(&self_);
+        imp.icon_size.set(icon_size);
         imp.image.replace(Some(image));
         imp.dots.replace(dots);
         imp.item_box.replace(item_box);
@@ -97,7 +98,7 @@ impl DockItem {
             dock_object.get_image();
             ..set_hexpand(true);
             ..set_halign(Align::Center);
-            ..set_pixel_size(48);
+            ..set_pixel_size(imp.icon_size.get().try_into().unwrap());
             ..set_tooltip_text(dock_object.get_name().as_deref());
         };
         let old_image = imp.image.replace(None);

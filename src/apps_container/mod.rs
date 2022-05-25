@@ -33,7 +33,9 @@ impl AppsContainer {
             // ..add_css_class("dock_container");
         };
 
-        let saved_app_list_view = DockList::new(DockListType::Saved, tx.clone());
+        let config = CosmicPanelConfig::load_from_env().unwrap_or_default();
+
+        let saved_app_list_view = DockList::new(DockListType::Saved, tx.clone(), config.clone());
         self_.append(&saved_app_list_view);
 
         // let separator_container = cascade! {
@@ -51,7 +53,7 @@ impl AppsContainer {
         //     ..add_css_class("dock_separator");
         // };
         // separator_container.append(&separator);
-        let active_app_list_view = DockList::new(DockListType::Active, tx);
+        let active_app_list_view = DockList::new(DockListType::Active, tx, config.clone());
         self_.append(&active_app_list_view);
         // self_.connect_orientation_notify(glib::clone!(@weak separator => move |c| {
         //     dbg!(c.orientation());
@@ -65,7 +67,8 @@ impl AppsContainer {
         imp.active_list.set(active_app_list_view).unwrap();
         // Setup
         self_.setup_callbacks();
-        self_.load_dock_config();
+        self_.set_position(config.anchor);
+        
 
         Self::setup_callbacks(&self_);
 
@@ -86,14 +89,6 @@ impl AppsContainer {
         let imp = imp::AppsContainer::from_instance(self);
         imp.saved_list.get().unwrap().set_position(position);
         imp.active_list.get().unwrap().set_position(position);
-    }
-
-    pub fn load_dock_config(&self) {
-        if let Ok(Ok(config)) =
-            env::var("COSMIC_DOCK_CONFIG").map(|c_name| CosmicPanelConfig::load(&c_name, None))
-        {
-            self.set_position(config.anchor);
-        }
     }
 
     fn setup_callbacks(&self) {
